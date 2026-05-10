@@ -80,6 +80,45 @@ Financial MCP servers generally fall into three distinct architectural and logic
 
 Use **LangGraph** to manage graph state and handoffs between specialized nodes (see **Decisions and non-goals** above).
 
+Phases are ordered **0 → 1 → 2 → 3**: **Phase 0** proves the **orchestration and safety rails** with minimal external surface; **Phase 1** adds the hardened execution environment (Docker, egress, vault sync).
+
+#### **Phase 0: Graph, contracts, kills, and one real integration (POC)**
+
+**Goal:** Ship a runnable **end-to-end LangGraph** (Scout → Auditor → Analyst → Manager) with **JSON handoffs**, **Pydantic v2 validation** on each edge, **`run_budget`** enforcement (at least **`max_seconds`** and a **best-effort spend accumulator**—see kill criteria), and **representative kill trips** under test—**before** committing to Phase 1’s full Docker/MCP/Obsidian hardening.
+
+**In scope**
+
+* **Graph:** all four node types exist and run in order; state is explicit and serializable where useful for tests.
+* **Contracts:** one **Pydantic model per outbound payload type** per edge; invalid JSON → **fail fast** after a **bounded** parse/repair attempt (policy spelled out in code/docs; default: **one** repair retry or none—implementation choice, must be documented).
+* **Stubs:** any node not yet backed by real data/tools returns **deterministic fixture JSON** that still validates against the same schemas (so downstream logic is real).
+* **Kills:** wire at least **Pydantic failure** and **run_budget** (`max_seconds` + rolling **`max_spend_usd`** estimate); other kills from the list may start as **tests-only** or **warn**, then promote to **abort** as confidence grows.
+
+**One real integration (required for Phase 0 exit — locked for this POC)**
+
+Exactly **one** of the following is implemented with **real** credentials, network, or filesystem (the others remain **stubbed** until a later phase). **This repository locks Phase 0 to:**
+
+* **LLM (locked):** at least one graph step calls a **real** model API; **token usage** feeds the **`max_spend_usd`** estimate per the **run_budget** section (best-effort until pricing tables are validated).
+
+**Deferred to later phases (stub in Phase 0)**
+
+1. **MCP tool:** host invokes real MCP tools inside/outside Docker (Phase 1+ for hardened servers).
+2. **Obsidian:** derived vault writes and git-hook sync (optional file write can be added as a separate small milestone if needed).
+
+Record any provider-specific env vars and pricing assumptions in implementation docs or `README` (never commit secrets).
+
+**Out of scope for Phase 0**
+
+* Full **Phase 1** container fleet, production-style **egress allowlists**, or **git-hook** vault sync (unless **Obsidian** is the single chosen integration—in that case only **file write** is in scope, not full sync automation).
+* Live trading, broker connectivity, or production deployment.
+
+**Exit criteria (Phase 0 done when)**
+
+* **Implementation:** Python package `src/stock_picker/poc1/`, CLI `uv run stock-picker poc1 run --prompt "…"`.
+* A single CLI or `uv run` entrypoint runs the **full graph** once on a sample prompt.
+* **Invalid handoff JSON** aborts or errors per policy without corrupting downstream state.
+* **`run_budget`** can **trip** under a controlled test (time or spend).
+* The **one chosen real integration** works end-to-end (credentials/path documented in env or local config, not committed to git).
+
 #### **Phase 1: Environment & Hardening**
 
 * **Containerization:** Deploy each MCP server in a separate **Docker** container.
@@ -176,4 +215,4 @@ To improve the technical precision of your spec, note these three distinctions:
 
 ---
 
-**Next artifacts:** Pydantic model list per graph edge (field names and types), and a minimal `docker-compose` sketch for three isolated MCP server networks aligned with egress policy.
+**Next artifacts:** Pydantic model list per graph edge (field names and types) for **Phase 0**; LLM provider env + **per-model price table** for **`run_budget`**. **Phase 1:** minimal `docker-compose` sketch for three isolated MCP server networks aligned with egress policy.
