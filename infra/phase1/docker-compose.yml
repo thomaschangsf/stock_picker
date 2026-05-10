@@ -1,0 +1,57 @@
+name: stock_picker_phase1
+
+# Phase 1 — Environment & hardening (specs/poc-1.md)
+#
+# - Three placeholder MCP service containers (replace images/commands in Phase 2).
+# - Fundamental service is on an internal-only network and must use the Squid
+#   allowlist proxy for outbound HTTPS (SEC / EDGAR hostnames only in squid.conf).
+# - Quant and Sentiment placeholders also reach the public network for future
+#   market/news APIs (no Squid restriction in this compose file).
+
+services:
+  squid-fundamental:
+    build: ./squid-fundamental
+    networks:
+      mcp_internal: {}
+      mcp_wan: {}
+
+  mcp-fundamental:
+    build: ./mcp-fundamental
+    environment:
+      HTTP_PROXY: http://squid-fundamental:3128
+      HTTPS_PROXY: http://squid-fundamental:3128
+      # Do not list the proxy hostname here — some clients mis-resolve the proxy itself.
+      NO_PROXY: localhost,127.0.0.1
+    networks:
+      mcp_internal: {}
+    depends_on:
+      - squid-fundamental
+    labels:
+      stock_picker.role: fundamental
+      stock_picker.phase: "1"
+
+  mcp-quant:
+    image: alpine:3.19
+    command: ["sleep", "infinity"]
+    networks:
+      mcp_internal: {}
+      mcp_wan: {}
+    labels:
+      stock_picker.role: quant
+      stock_picker.phase: "1"
+
+  mcp-sentiment:
+    image: alpine:3.19
+    command: ["sleep", "infinity"]
+    networks:
+      mcp_internal: {}
+      mcp_wan: {}
+    labels:
+      stock_picker.role: sentiment
+      stock_picker.phase: "1"
+
+networks:
+  mcp_internal:
+    driver: bridge
+  mcp_wan:
+    driver: bridge

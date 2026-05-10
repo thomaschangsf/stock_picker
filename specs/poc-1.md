@@ -125,6 +125,12 @@ Record any provider-specific env vars and pricing assumptions in implementation 
 * **Egress Filtering:** Configure your network to ensure the "Fundamental Agent" can only talk to SEC.gov/EDGAR, preventing data leakage.
 * **Obsidian Sync:** Set up a local Git hook to push agent outputs directly into your Obsidian vault as daily markdown notes.
 
+**Implementation in this repo (scaffold):**
+
+* **Docker Compose:** `infra/phase1/docker-compose.yml` — services `mcp-quant`, `mcp-fundamental`, `mcp-sentiment` (placeholders) and `squid-fundamental` (hostname allowlist proxy). `mcp-fundamental` has **no** direct WAN network; outbound HTTPS is intended to go via **Squid** only (`HTTP_PROXY` / `HTTPS_PROXY`). Extend `infra/phase1/squid-fundamental/squid.conf` when tools need more SEC/EDGAR hostnames.
+* **CLI:** `uv run stock-picker phase1 up|down|ps|verify` wraps `docker compose -f infra/phase1/docker-compose.yml …`.
+* **Obsidian:** `scripts/phase1/obsidian-sync.sh` and `scripts/phase1/install-obsidian-post-commit.sh` (see `scripts/phase1/README.md`). Details: `infra/phase1/README.md`.
+
 #### **Phase 2: The Agent Workflow (The "Consensus" Model)**
 
 1. **The Scout (Technical):** Scans the top 500 tickers.

@@ -66,6 +66,25 @@ Use **uppercase tickers** in the prompt for best extraction (e.g. `AAPL`); if no
 
 Until Phase 2 (plus real MCP implementations), treat outputs as **orchestration and LLM synthesis demos**, not verified data-backed screens.
 
+### Phase 1 — Docker + egress + Obsidian (`specs/poc-1.md`)
+
+**What is Squid?** [**Squid**](http://www.squid-cache.org/) is a long-established **HTTP/HTTPS forward proxy** server. In this repo it sits in front of the **fundamental** placeholder container so that container’s outbound web traffic can be **restricted by hostname** (here: **`.sec.gov` only** in `infra/phase1/squid-fundamental/squid.conf`). Your apps point at Squid with `HTTP_PROXY` / `HTTPS_PROXY`; Squid decides what may be forwarded to the public internet.
+
+**Containers:** `infra/phase1/docker-compose.yml` starts three **placeholder** MCP services (`mcp-quant`, `mcp-fundamental`, `mcp-sentiment`) and **`squid-fundamental`** (that Squid allowlist proxy). The fundamental container has **no direct WAN network**; outbound HTTPS is meant to go only through **`HTTP_PROXY` / `HTTPS_PROXY`** to Squid.
+
+**CLI (requires Docker):**
+
+```bash
+uv run stock-picker phase1 verify   # validate compose file
+uv run stock-picker phase1 up       # build & start
+uv run stock-picker phase1 ps
+uv run stock-picker phase1 down
+```
+
+Full notes, **manual `docker compose` commands**, and **how to smoke-test** the proxy (including why **SEC may return HTTP 403** even when the allowlist works): **`infra/phase1/README.md`**.
+
+**Obsidian (optional):** copy `docs/generated/backtests/*.md` into your vault, or install a **post-commit** hook — see **`scripts/phase1/README.md`**.
+
 **Optional environment variables**
 
 - `STOCK_PICKER_OPENAI_MODEL` — default `gpt-4o-mini`

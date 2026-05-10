@@ -33,6 +33,13 @@ def main() -> None:
         help="run_budget.max_spend_usd LLM estimate cap (default: 2).",
     )
 
+    ph1 = sub.add_parser("phase1", help="Phase 1 Docker + Obsidian helpers (specs/poc-1.md)")
+    ph1_sub = ph1.add_subparsers(dest="phase1_cmd", required=True)
+    ph1_sub.add_parser("up", help="docker compose up -d --build")
+    ph1_sub.add_parser("down", help="docker compose down")
+    ph1_sub.add_parser("ps", help="docker compose ps")
+    ph1_sub.add_parser("verify", help="docker compose config (validate compose file)")
+
     args = parser.parse_args()
 
     if args.version:
@@ -54,6 +61,20 @@ def main() -> None:
                 raise SystemExit(1) from e
             print(json.dumps(out, indent=2))
             return
+
+    if args.cmd == "phase1":
+        from stock_picker.phase1.compose import run_compose
+
+        mapping = {
+            "up": ["up", "-d", "--build"],
+            "down": ["down"],
+            "ps": ["ps"],
+            "verify": ["config"],
+        }
+        extra = mapping.get(args.phase1_cmd)
+        if extra is None:
+            raise SystemExit(f"unknown phase1 command: {args.phase1_cmd!r}")
+        raise SystemExit(run_compose(extra))
 
     parser.print_help()
 
