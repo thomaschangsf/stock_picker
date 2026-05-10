@@ -1,0 +1,15 @@
+*.swp
+*.swo
+*~
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.python-version
+docs/generated/**/*
+!docs/generated/.gitkeep
+!docs/generated/backtests/
+!docs/generated/backtests/.gitkeep
+
