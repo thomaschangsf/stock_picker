@@ -8,6 +8,8 @@ __pycache__/
 .ruff_cache/
 .venv/
 .python-version
+.env
+config/secrets.env
 docs/generated/**/*
 !docs/generated/.gitkeep
 !docs/generated/backtests/

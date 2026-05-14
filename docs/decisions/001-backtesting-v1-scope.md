@@ -16,7 +16,7 @@ We want a **realistic but simple** backtester for **long-hold** portfolios: dail
 4. **Costs v1:** **ETF `expense_ratio` daily drag** from data; **no** per-trade slippage/commissions (deferred as third-order).
 5. **Metadata in price data:** include **`asset_type`** and **`expense_ratio`** alongside OHLCV.
 6. **Rates:** default **fetch Fed-linked series**; **`--risk-free`** constant annual override for offline/reproducible runs.
-7. **Fetchers:** **Stooq default**; **Alpha Vantage optional** (key + strict limits).
+7. **Fetchers:** **Parquet / user ingest primary**; **Alpha Vantage optional** (key + strict limits) for documented API pulls.
 8. **Reports:** write Markdown under **`docs/generated/backtests/`**.
 9. **Rebalancing sophistication:** deferred; v1 uses **“rebalance next open whenever targets change”** until threshold/calendar rules exist.
 

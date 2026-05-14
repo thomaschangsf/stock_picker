@@ -33,8 +33,8 @@ Support **experimenting with trading strategies** against **historical daily mar
 
 ## Data acquisition
 
-- **Default fetcher:** **Stooq** (no API key; suitable for bulk history).
-- **Optional fetcher:** **Alpha Vantage** (API key; strict daily limits — use sparingly, e.g. gap-fill or spot checks).
+- **Primary:** local **`datasets/market_data/{SYMBOL}.parquet`** (ingest from your CSV/process or documented APIs).
+- **Optional fetcher (example):** **Alpha Vantage** (API key; strict daily limits — use sparingly, e.g. gap-fill or spot checks).
 - Ingestion writes/merges into `datasets/market_data/{SYMBOL}.parquet` (dedupe by date on append).
 
 ## Strategy interface (v1)

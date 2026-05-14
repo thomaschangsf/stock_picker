@@ -16,3 +16,11 @@ Planned backtest run reports (v1): `docs/generated/backtests/` — see [specs/ba
 
 - [decisions/001-backtesting-v1-scope.md](decisions/001-backtesting-v1-scope.md)
 
+## Environment
+
+- [env.md](env.md) — dotenv load order, variable table, SEC User-Agent setup, `stock-picker doctor`.
+
+## Phase 2 — Analyst coverage
+
+- [analyst-coverage.md](analyst-coverage.md) — SEC baseline vs optional Finnhub; what is covered; future TODOs.
+
